@@ -1,0 +1,31 @@
+# znc-ssg AI Ignore Rules
+
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build Outputs
+dist/
+build/
+.output/
+
+# Binaries & Media
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.mp4
+*.zip
+*.pdf
+*.ttf
+*.woff2
+
+# Temp and Logs
+.tmp/
+.temp/
+logs/
+*.log
+workspace/
