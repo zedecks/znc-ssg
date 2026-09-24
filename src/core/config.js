@@ -1,20 +1,45 @@
-const CATEGORIAS = [
-  { slug: "motion", nome: "Motions", descricao: "Projetos de animação que dão vida a ideias e criam narrativas visuais dinâmicas." },
-  { slug: "audiovisual", nome: "Audiovisuais", descricao: "Produções e captações criadas para transmitir emoções e contar histórias autênticas." },
-  { slug: "branding", nome: "Branding", descricao: "Identidades visuais concebidas para fortalecer o posicionamento, atrair o público certo e gerar resultados reais." },
-  { slug: "social-media", nome: "Social Media", descricao: "Conteúdos estratégicos desenhados para maximizar o engajamento e a presença digital da tua marca." },
-  { slug: "design-grafico", nome: "Design Gráficos", descricao: "Peças visuais apelativas e funcionais focadas em comunicar mensagens de forma clara e impactante." },
-  { slug: "ui-ux", nome: "UI/UX", descricao: "Interfaces intuitivas projetadas com foco absoluto na usabilidade e na experiência do utilizador." },
-  { slug: "web-dev", nome: "Web Development", descricao: "Soluções digitais rápidas, modernas e à medida para impulsionar o teu negócio na internet." },
-  { slug: "apps", nome: "Apps", descricao: "Aplicações móveis e web apps inovadoras, desenvolvidas para proporcionar experiências fluidas e de alto desempenho." },
-  { slug: "eventos", nome: "Eventos", descricao: "Cobertura visual e conteúdos criativos para imortalizar momentos e amplificar o impacto de cada evento." },
-  { slug: "outros", nome: "Outros", descricao: "Projetos variados e multidisciplinares que exploram diferentes abordagens criativas e desafios únicos." },
-];
+const path = require('path');
+const fs = require('fs-extra');
 
-const PARTNERS = [
-  { id: "zedecks", nome: "Zedeck's IT", whatsapp: "258877703308" },
-  { id: "nn", nome: "Agência NN", whatsapp: "258868864717" },
-];
+// Default generic configurations
+const DEFAULT_CONFIG = {
+  site: {
+    title: "ZNC User Portfolio",
+    description: "Creative portfolio built with znc-ssg.",
+    url: "https://example.com/",
+    image: "https://example.com/assets/images/site-og.png",
+    author: "ZNC User",
+    footerName: "ZNC User",
+    startYear: new Date().getFullYear(),
+    footerPartners: [],
+    socials: []
+  },
+  categories: [
+    { slug: "design", nome: "Design", descricao: "Design projects and mockups." },
+    { slug: "development", nome: "Development", descricao: "Web and app development projects." }
+  ],
+  partners: [
+    { id: "freelance", nome: "ZNC User", whatsapp: "000000000" }
+  ],
+  paths: {
+    content: "workspace",
+    output: "dist",
+    assets: "assets",
+    templates: "templates"
+  }
+};
+
+let userConfig = {};
+try {
+  const configPath = path.join(process.cwd(), 'znc.config.js');
+  if (fs.existsSync(configPath)) {
+    userConfig = require(configPath);
+  }
+} catch (error) {
+  console.warn("Could not load znc.config.js. Using defaults.");
+}
+
+const CONFIG = { ...DEFAULT_CONFIG, ...userConfig };
 
 function hasCategory(p, catSlug) {
   if (Array.isArray(p.categoria)) return p.categoria.includes(catSlug);
@@ -22,7 +47,7 @@ function hasCategory(p, catSlug) {
 }
 
 function catNome(catSlug) {
-  const c = CATEGORIAS.find(c => c.slug === catSlug);
+  const c = (CONFIG.categories || []).find(c => c.slug === catSlug);
   return c ? c.nome : catSlug;
 }
 
@@ -34,13 +59,12 @@ function catNomes(cat) {
 }
 
 function catDesc(catSlug) {
-  const c = CATEGORIAS.find(c => c.slug === catSlug);
-  return c && c.descricao ? c.descricao : "Projetos desenvolvidos para fortalecer marcas, atrair clientes e gerar resultados reais através da criatividade.";
+  const c = (CONFIG.categories || []).find(c => c.slug === catSlug);
+  return c && c.descricao ? c.descricao : "";
 }
 
 module.exports = {
-  CATEGORIAS,
-  PARTNERS,
+  CONFIG,
   hasCategory,
   catNome,
   catNomes,
