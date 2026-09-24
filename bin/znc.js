@@ -1,31 +1,35 @@
 #!/usr/bin/env node
-
 const { program } = require('commander');
-const packageJson = require('../package.json');
+const buildCommand = require('../src/commands/build');
+const r2ConvertCommand = require('../src/commands/r2-convert');
 
 program
-  .version(packageJson.version)
-  .description(packageJson.description);
+  .name('znc-ssg')
+  .description('Zedecks Node Core Static Site Generator - High-performance static site builder.')
+  .version('1.0.0-alpha.1');
 
 program
   .command('build')
-  .description('Compile the static site from templates and JSON data with 100% SEO & Performance optimizations')
-  .action(() => {
-    require('../src/commands/build.js')();
+  .description('Compiles the static site based on znc.config.js and workspace contents.')
+  .action(async () => {
+    try {
+      await buildCommand();
+    } catch (err) {
+      console.error("Build Failed:", err);
+      process.exit(1);
+    }
   });
 
 program
   .command('r2-convert')
-  .description('Optimize and convert assets for R2 CDN')
-  .action(() => {
-    require('../src/commands/r2-convert.js')();
+  .description('Optimizes images and videos for Cloudflare R2 / CDN distribution.')
+  .action(async () => {
+    try {
+      await r2ConvertCommand();
+    } catch (err) {
+      console.error("R2 Convert Failed:", err);
+      process.exit(1);
+    }
   });
 
-program
-  .command('init')
-  .description('Scaffold a new znc-ssg project structure in the current directory')
-  .action(() => {
-    require('../src/commands/init.js')();
-  });
-
-program.parse(process.argv);
+program.parse();

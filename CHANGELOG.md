@@ -12,3 +12,5 @@
 - Created generic agnostic config mechanism in `src/core/config.js` with fallback to `znc.config.js`.
 - Integrated SEO utilities in `src/utils/optimizer.js`.
 - Configured file system utilities in `src/utils/file-system.js`.
+- Added the core CLI implementation in `src/commands/build.js`.
+- Migrated media optimization script into `src/commands/r2-convert.js`.
