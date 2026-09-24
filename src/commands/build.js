@@ -3,7 +3,7 @@ const path = require('path');
 const chalk = require('chalk');
 const { readProjects, ensureDir, loadLocale } = require('../utils/file-system');
 const { optimizeCSS, optimizeJS } = require('../utils/optimizer');
-const { buildIndex, buildCategoria, buildProjeto } = require('../core/pages');
+const { buildIndex, buildCategoria, buildProjeto, buildApi, buildEmbed, buildEmbedProjeto, buildInterno, buildLegalPage } = require('../core/pages');
 const { CONFIG } = require('../core/config');
 
 async function build(options = {}) {
@@ -67,19 +67,44 @@ async function build(options = {}) {
   const indexHtml = await buildIndex(projects, buildTime, localeEn);
   fs.writeFileSync(path.join(DIST_DIR, "index.html"), indexHtml);
   
-  // Categorias
+  // Categorias, APIs e Embeds
   ensureDir(path.join(DIST_DIR, "categoria"));
+  ensureDir(path.join(DIST_DIR, "api"));
+  ensureDir(path.join(DIST_DIR, "embed"));
   for (const cat of (CONFIG.categories || [])) {
     const catHtml = await buildCategoria(cat.slug, projects, buildTime, localeEn);
     fs.writeFileSync(path.join(DIST_DIR, "categoria", `${cat.slug}.html`), catHtml);
+    
+    const apiJson = await buildApi(cat.slug, projects, buildTime, localeEn);
+    fs.writeFileSync(path.join(DIST_DIR, "api", `${cat.slug}.json`), apiJson);
+    
+    const embedHtml = await buildEmbed(cat.slug, projects, buildTime, localeEn);
+    fs.writeFileSync(path.join(DIST_DIR, "embed", `${cat.slug}.html`), embedHtml);
   }
+  
+  // Embed 'todos'
+  const embedTodosHtml = await buildEmbed("todos", projects, buildTime, localeEn);
+  fs.writeFileSync(path.join(DIST_DIR, "embed", "todos.html"), embedTodosHtml);
 
-  // Projetos Individuais
+  // Projetos Individuais e Embed Projetos
   ensureDir(path.join(DIST_DIR, "projeto"));
+  ensureDir(path.join(DIST_DIR, "embed", "projeto"));
   for (const p of projects) {
     const projHtml = await buildProjeto(p, projects, buildTime, localeEn);
     fs.writeFileSync(path.join(DIST_DIR, "projeto", `${p.slug}.html`), projHtml);
+    
+    const projEmbedHtml = await buildEmbedProjeto(p, buildTime, localeEn);
+    fs.writeFileSync(path.join(DIST_DIR, "embed", "projeto", `${p.slug}.html`), projEmbedHtml);
   }
+  
+  // Área Interna
+  ensureDir(path.join(DIST_DIR, "interno"));
+  const internoHtml = await buildInterno(projects, buildTime, localeEn);
+  fs.writeFileSync(path.join(DIST_DIR, "interno", "index.html"), internoHtml);
+  
+  // Página Legal
+  const legalHtml = await buildLegalPage(buildTime, localeEn);
+  fs.writeFileSync(path.join(DIST_DIR, "termos-e-politicas.html"), legalHtml);
 
   const duration = ((Date.now() - startTime) / 1000).toFixed(2);
   console.log(chalk.green.bold(`\n🎉 Build concluído com sucesso em ${duration}s!`));
