@@ -179,14 +179,14 @@ async function buildLegalPage(buildTime, LOCALE_EN) {
   let enContent = fs.existsSync(enPath) ? fs.readFileSync(enPath, "utf8") : "*(Translation pending)*";
 
   const extractTOC = (markdown) => {
-    const lines = markdown.split('\\n');
+    const lines = markdown.split('\n');
     let tocHtml = '<ul>';
     lines.forEach(line => {
-      const match = line.trim().match(/^(#{1,2})\\s+(.+)$/);
+      const match = line.trim().match(/^(#{1,2})\s+(.+)$/);
       if (match) {
         const title = match[2];
-        const slug = title.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-        tocHtml += \`<li><a href="#\${slug}">\${title}</a></li>\`;
+        const slug = title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        tocHtml += `<li><a href="#${slug}">${title}</a></li>`;
       }
     });
     tocHtml += '</ul>';
@@ -197,10 +197,10 @@ async function buildLegalPage(buildTime, LOCALE_EN) {
   let enHtml = marked.parse(enContent);
 
   const injectIDs = (html) => {
-    return html.replace(/<h([12])[^>]*>(.*?)<\\/h\\1>/g, (match, level, text) => {
+    return html.replace(/<h([12])[^>]*>(.*?)<\/h\1>/g, (match, level, text) => {
       const cleanText = text.replace(/<[^>]+>/g, '');
-      const slug = cleanText.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-      return \`<h\${level} id="\${slug}">\${text}</h\${level}>\`;
+      const slug = cleanText.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      return `<h${level} id="${slug}">${text}</h${level}>`;
     });
   };
 
@@ -210,12 +210,12 @@ async function buildLegalPage(buildTime, LOCALE_EN) {
   const ptTOC = extractTOC(ptContent);
   const enTOC = extractTOC(enContent);
 
-  const html = \`\${head("Termos & Políticas — " + CONFIG.site.title, "page-legal", {
+  const html = `${head("Termos & Políticas — " + CONFIG.site.title, "page-legal", {
     description: "Termos de Serviço e Políticas de Privacidade.",
     i18nTitle: "seo_title_legal",
     i18nDesc: "seo_desc_legal"
   }, buildTime, LOCALE_EN)}
-\${headerNav()}
+${headerNav()}
 <main id="content">
   <div class="project-hero-container" style="min-height: 25vh; display: flex; align-items: center; margin-bottom: 20px;">
     <section class="wrap hero-header-wrap" style="grid-template-columns: 1fr; justify-items: center; padding-top: 80px;">
@@ -228,18 +228,18 @@ async function buildLegalPage(buildTime, LOCALE_EN) {
   <div class="wrap" style="display: flex; gap: 40px; margin-top: 40px; align-items: flex-start;">
     <aside class="legal-sidebar" style="flex: 0 0 250px; width: 250px; min-width: 250px; position: sticky; top: 100px; padding: 20px; background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border);">
       <h3 style="margin-top: 0; font-size: 1.1rem;" data-i18n="legal_index">Índice</h3>
-      <div class="lang-content" data-lang="pt">\${ptTOC}</div>
-      <div class="lang-content" data-lang="en" style="display:none;">\${enTOC}</div>
+      <div class="lang-content" data-lang="pt">${ptTOC}</div>
+      <div class="lang-content" data-lang="en" style="display:none;">${enTOC}</div>
     </aside>
 
     <article class="legal-content section-block" style="flex: 1; padding: 0 20px;">
-      <div class="lang-content" data-lang="pt">\${ptHtml}</div>
-      <div class="lang-content" data-lang="en" style="display:none;">\${enHtml}</div>
+      <div class="lang-content" data-lang="pt">${ptHtml}</div>
+      <div class="lang-content" data-lang="en" style="display:none;">${enHtml}</div>
     </article>
   </div>
 </main>
-\${footer()}
-</body></html>\`;
+${footer()}
+</body></html>`;
   return await optimizeHTML(html);
 }
 
